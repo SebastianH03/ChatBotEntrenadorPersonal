@@ -1,0 +1,604 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1472,
+        -208
+      ],
+      "id": "f591214a-467d-4171-8a74-fb458b01680b",
+      "name": "Telegram Trigger",
+      "webhookId": "07a30f10-eca9-4ee6-ae39-2c46de89448f",
+      "credentials": {
+        "telegramApi": {
+          "id": "arIOlIhSNbsvpt5b",
+          "name": "GangBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.0-flash-lite"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=\n*Eres un entrenador personal profesional. Cuando te dé el nombre de un ejercicio o una pregunta sobre un movimiento, responde de forma muy clara, concisa y directa. No escribas párrafos largos ni explicaciones extensas.\n\nTu respuesta debe incluir únicamente:\n\nDescripción breve del ejercicio (1–2 líneas).\n\nPaso a paso para ejecutarlo correctamente (en viñetas).\n\nMúsculos principales trabajados.\n\nErrores comunes a evitar (máximo 3).\n\nRecomendaciones de seguridad o técnica (máximo 3).\n\nNo agregues información innecesaria, teorías, fisiología ni advertencias genéricas.*\n\nEntrada: {{ $json.text }}\n\nSalida: Respuesta precisa siguiendo el formato indicado.\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -320
+      ],
+      "id": "e6196164-c7c2-4932-b980-b9f25fdd8083",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lfR06EfIfjQSRwQH",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "21015e80-5348-4a04-bd4e-31e6d5e43c55",
+              "leftValue": "={{ $json.message.voice }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1264,
+        -208
+      ],
+      "id": "35d39f1d-6f91-444c-a344-db224430f0a9",
+      "name": "If Es Audio"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        -400
+      ],
+      "id": "fce89ed3-1005-4171-b2aa-9522f90f869b",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lfR06EfIfjQSRwQH",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1024,
+        -400
+      ],
+      "id": "48e191e2-844b-4cc7-921d-cae584004417",
+      "name": "Get a file",
+      "webhookId": "4a5380c7-b844-4e4a-86c8-c8d154b0cb2c",
+      "credentials": {
+        "telegramApi": {
+          "id": "arIOlIhSNbsvpt5b",
+          "name": "GangBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.first().json.content.parts[0].text || '';\nconst normalized = text.toLowerCase().trim();\n\nreturn [{\n  text,\n  normalized\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        -400
+      ],
+      "id": "f9d0eb48-d1f7-474e-ba6b-332eac05fc94",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "=*Eres un generador de imágenes especializado en ejercicios físicos y entrenamiento.\nCuando reciba el nombre de un ejercicio, debes generar una imagen clara, precisa y funcional, enfocada en mostrar la técnica correcta.\n\nSigue estas reglas:\n\nMuestra una única persona realizando el ejercicio.\n\nPostura correcta, ángulo claro y detalles visibles.\n\nFondo simple, estilo realista o ilustración técnica (sin distracciones).\n\nSin efectos artísticos exagerados.\n\nEvita rostros famosos o rasgos reconocibles específicos.\n\nEnfócate en que la ejecución sea educativa y fiel a la técnica real.\n\nEntrada: {{ $json.text }}\nSalida: imagen que muestre el ejercicio con la técnica adecuada, desde un ángulo óptimo para comprenderlo.*\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        -544
+      ],
+      "id": "8b0e8f16-e3e5-4f87-b40a-3ead23c53efc",
+      "name": "Generar Imagen",
+      "credentials": {
+        "openAiApi": {
+          "id": "ljH2NJBCcbE2Gjsy",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        -608
+      ],
+      "id": "1229ddd3-55aa-4f89-ae1f-ee0ae32a3d7b",
+      "name": "Send a photo message",
+      "webhookId": "dd8d845a-02b5-4fc3-9780-b4d311572fb5",
+      "credentials": {
+        "telegramApi": {
+          "id": "arIOlIhSNbsvpt5b",
+          "name": "GangBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        336,
+        -416
+      ],
+      "id": "dd017a0a-156f-4cee-9172-07be5cedefd9",
+      "name": "Send an audio file",
+      "webhookId": "9e050085-3efd-4659-9006-28d7c949db46",
+      "credentials": {
+        "telegramApi": {
+          "id": "arIOlIhSNbsvpt5b",
+          "name": "GangBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "input": "={{ $json.content.parts[0].text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        144,
+        -320
+      ],
+      "id": "07e4740b-2a7f-4471-a493-2e041d9a72b4",
+      "name": "Generate audio",
+      "credentials": {
+        "openAiApi": {
+          "id": "ljH2NJBCcbE2Gjsy",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c7a5d943-56ae-49e3-a410-9f1611a3e4c6",
+              "leftValue": "={{    $json.normalized.startsWith('imagen:') ||   $json.normalized.startsWith('imagen ') ||   $json.normalized.startsWith('dibuja ')  }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -384,
+        -416
+      ],
+      "id": "4ac9aafb-0151-4f93-8ac9-d43fe495aad5",
+      "name": "If Imagen"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.0-flash-lite"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=*Eres un entrenador personal profesional. Cuando te dé el nombre de un ejercicio o una pregunta sobre un movimiento, responde de forma muy clara, concisa y directa. No escribas párrafos largos ni explicaciones extensas.\n\nTu respuesta debe incluir únicamente:\n\nDescripción breve del ejercicio (1–2 líneas).\n\nPaso a paso para ejecutarlo correctamente (en viñetas).\n\nMúsculos principales trabajados.\n\nErrores comunes a evitar (máximo 3).\n\nRecomendaciones de seguridad o técnica (máximo 3).\n\nNo agregues información innecesaria, teorías, fisiología ni advertencias genéricas.*\n\nEntrada: {{ $json.text }}\n\nSalida: Respuesta precisa siguiendo el formato indicado, con un limite de 100 palabras."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        16
+      ],
+      "id": "afd442f4-8fcb-4ddc-b961-3609c6c6062a",
+      "name": "Message a model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lfR06EfIfjQSRwQH",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.content.parts[0].text }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -336,
+        16
+      ],
+      "id": "6726bec2-1930-4355-b216-1253da8209aa",
+      "name": "Send a text message",
+      "webhookId": "bb753c93-d6b4-429b-ba8d-a9efae350a3f",
+      "credentials": {
+        "telegramApi": {
+          "id": "arIOlIhSNbsvpt5b",
+          "name": "GangBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c7a5d943-56ae-49e3-a410-9f1611a3e4c6",
+              "leftValue": "={{    $json.normalized.startsWith('imagen:') ||   $json.normalized.startsWith('imagen ') ||   $json.normalized.startsWith('dibuja ')  }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -864,
+        -144
+      ],
+      "id": "18fc894f-0b83-4aaf-9541-d7747bb7a9b8",
+      "name": "If Imagen1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.first().json.message.text || '';\nconst normalized = text.toLowerCase().trim();\n\nreturn [{\n  text,\n  normalized\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1056,
+        -176
+      ],
+      "id": "62eab6e0-e0db-4452-a942-36fe98aa4015",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "=*Eres un generador de imágenes especializado en ejercicios físicos y entrenamiento.\nCuando reciba el nombre de un ejercicio, debes generar una imagen clara, precisa y funcional, enfocada en mostrar la técnica correcta.\n\nSigue estas reglas:\n\nMuestra una única persona realizando el ejercicio.\n\nPostura correcta, ángulo claro y detalles visibles.\n\nFondo simple, estilo realista o ilustración técnica (sin distracciones).\n\nSin efectos artísticos exagerados.\n\nEvita rostros famosos o rasgos reconocibles específicos.\n\nEnfócate en que la ejecución sea educativa y fiel a la técnica real.\n\nEntrada: {{ $json.text }}\nSalida: imagen que muestre el ejercicio con la técnica adecuada, desde un ángulo óptimo para comprenderlo.*\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        -624,
+        -160
+      ],
+      "id": "ab21cc0e-fb86-4a86-94f3-1492e3d61dde",
+      "name": "Generar Imagen1",
+      "credentials": {
+        "openAiApi": {
+          "id": "ljH2NJBCcbE2Gjsy",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -448,
+        -160
+      ],
+      "id": "1264b70d-d4a4-45cc-b6ca-2bb2ffa99ee4",
+      "name": "Send a photo message1",
+      "webhookId": "dd8d845a-02b5-4fc3-9780-b4d311572fb5",
+      "credentials": {
+        "telegramApi": {
+          "id": "arIOlIhSNbsvpt5b",
+          "name": "GangBot"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If Es Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Es Audio": {
+      "main": [
+        [
+          {
+            "node": "Get a file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a file": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If Imagen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generar Imagen": {
+      "main": [
+        [
+          {
+            "node": "Send a photo message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Generate audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate audio": {
+      "main": [
+        [
+          {
+            "node": "Send an audio file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Imagen": {
+      "main": [
+        [
+          {
+            "node": "Generar Imagen",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If Imagen1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Imagen1": {
+      "main": [
+        [
+          {
+            "node": "Generar Imagen1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generar Imagen1": {
+      "main": [
+        [
+          {
+            "node": "Send a photo message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "1706be03-bc37-4f0c-9c27-d4a9d6eea154",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "030074c144c7ec100a541372913fd8a7ea8edb1b5be16185d2963e44e3b4ea71"
+  },
+  "id": "r8XWOxmMIQbqnN5D",
+  "tags": []
+}

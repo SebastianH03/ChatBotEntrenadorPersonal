@@ -1,0 +1,12 @@
+Montar las imágenes del docker
+docker compose up
+
+Para detenerlo
+docker compose down
+
+Para iniciar el Ngrok y hacer público el puerto de N8n local (comúnmente está en el puerto 5678
+ngrok http 5678
+
+Ingresar al link:
+https://balletic-marget-overdrily.ngrok-free.dev/workflow/r8XWOxmMIQbqnN5D
+
