@@ -134,14 +134,17 @@ Este bot es capaz de:
 
 <img width="1280" height="514" alt="image" src="https://github.com/user-attachments/assets/b63e7768-62f0-4236-87bc-b588be959ff8" />
 
-
-1. El usuario envía **texto o audio**.  
-2. Si es audio → se **descarga y transcribe**.  
-3. Se verifica si el texto comienza con **"imagen"**.  
-4. Si inicia con “imagen” → **se genera una imagen**.  
-5. En otros casos:  
-   - Si el usuario envió texto → se responde en **texto**.  
-   - Si el usuario envió audio → se responde con **audio generado**.
+1. El usuario envía un **mensaje en texto o un audio** al bot de Telegram.
+2. Si el mensaje es **audio**, el bot:
+   - Lo descarga desde Telegram.
+   - Lo convierte a un formato compatible.
+   - Lo transcribe usando Gemini.
+3. Con el texto (ya sea escrito o transcrito), el bot analiza si **la primera palabra es "imagen"**.
+   - Si inicia con "imagen", se interpreta como una solicitud visual y se genera **una imagen técnica** usando OpenAI.
+4. Si el mensaje **no** inicia con "imagen":
+   - Cuando el usuario envía **texto**, el bot responde con **instrucciones escritas** generadas por IA.
+   - Cuando el usuario envía **audio**, el bot genera una **respuesta en audio TTS**, manteniendo el estilo técnico del asistente.
+5. Finalmente, el bot devuelve el contenido generado (texto, audio o imagen) directamente al chat del usuario en Telegram.
 
 > El contexto del sistema restringe todas las respuestas al **dominio del entrenamiento físico**, actuando siempre como un entrenador personal profesional.
 
