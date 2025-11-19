@@ -195,7 +195,7 @@ Salida: imagen que muestre el ejercicio con la técnica adecuada, desde un ángu
 ¿Cómo hago una sentadilla con barra?
 
 **Salida esperada:**  
-Texto breve, técnico y estructurado según el prompt.
+<img width="1361" height="634" alt="image" src="https://github.com/user-attachments/assets/276ab2cf-012c-43b2-b09d-5fa80c886b6d" />
 
 ---
 
@@ -205,14 +205,15 @@ Texto breve, técnico y estructurado según el prompt.
 Explícame cómo hacer un peso muerto rumano.
 
 **Salida:**  
-Audio con instrucciones claras según formato.
+<img width="1274" height="166" alt="image" src="https://github.com/user-attachments/assets/76f8549e-128e-46d8-a9a1-6ebd8ae51d4b" />
 
 ---
 
 ## Caso 3 — Solicitud de imagen
 
 **Entrada:**  
-Imagen, de una plancha abdominal
+Imagen de una plancha abdominal
 
 **Salida:**  
-Imagen técnica mostrando postura correcta.
+<img width="1310" height="486" alt="image" src="https://github.com/user-attachments/assets/a2121764-4aae-4e54-8c85-740b03bf7a41" />
+
